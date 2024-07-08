@@ -1,6 +1,7 @@
 # cd recipes
 # .\venv\Scripts\Activate
 # python app.py
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -33,12 +34,28 @@ def save_cookbook():
 
 def load_cookbook():
     with open('data.txt', 'r') as file:
-        lines = file.readlines()
+        # lines = file.readlines()
         lines = file.readlines()[1:]
         for i in range(0, len(lines), 4):
             if i + 3 < len(lines):
                 recipe = Recipe(lines[i].strip(), lines[i+1].strip(), lines[i+2].strip(), lines[i+3].strip())
                 cookbook.append(recipe)
+
+def sort_cookbook_by_name():
+    cookbook.sort(key=lambda x: x.Title.upper())
+
+def sort_cookbook_by_tags():
+    # sort_cookbook_by_name()
+    cookbook.sort(key=lambda x: x.Tags.upper())
+
+@app.route('/api/get-cookbook', methods=['GET'])
+def get_cookbook():
+    load_cookbook()
+    sort_cookbook_by_tags()
+    return jsonify({"data": cookbook})
+
+
+
 
 
 
@@ -62,8 +79,6 @@ def sort_by_name():
             file.write('\n'.join(recipe))
             if i < len(recipes) - 1:
                 file.write('\n')
-
-
 
 
 @app.route('/api/read-file', methods=['GET'])
